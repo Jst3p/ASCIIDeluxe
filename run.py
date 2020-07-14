@@ -36,6 +36,8 @@ def main():
     height = int(dimList[1])
 
     def updateThresh(val):
+        gamma = gammaSlider.val
+        gammaImg = img ** gamma
         thresh = binSlider.val
         threshImg = (gammaImg > thresh).astype(np.int)
 
@@ -48,7 +50,6 @@ def main():
         gammaPlot.set_data(gammaImg)
 
         thresh = binSlider.val
-        print(thresh)
         threshImg = (gammaImg > thresh).astype(np.int)
         binPlot.set_data(threshImg)
 
@@ -67,7 +68,7 @@ def main():
     gammaImg = img ** gamma
 
     thresh = 0.5
-    threshImg = (img > thresh).astype(np.int)
+    threshImg = (gammaImg > thresh).astype(np.int)
 
     originalPlot = ax[0].imshow(img, cmap="gray")
     gammaPlot = ax[1].imshow(gammaImg, cmap="gray")
@@ -95,8 +96,8 @@ def main():
     print("Choose Threshold and exit window.")
     plt.show()
 
-    thresh = binSlider.val
-    threshImg = (gammaImg > thresh).astype(np.int)
+    gammaImg = img ** gammaSlider.val
+    threshImg = (gammaImg > binSlider.val).astype(np.int)
 
     resStr = binimgToStr(threshImg)
     resFName = fname.split(".")[0]
