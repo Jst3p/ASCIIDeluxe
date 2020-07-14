@@ -35,11 +35,23 @@ def main():
     width = int(dimList[0])
     height = int(dimList[1])
 
-    def update(val):
+    def updateThresh(val):
         thresh = binSlider.val
-        threshImg = (img > thresh).astype(np.int)
+        threshImg = (gammaImg > thresh).astype(np.int)
 
         binPlot.set_data(threshImg)
+        fig.canvas.draw_idle()
+
+    def updateGamma(val):
+        gamma = gammaSlider.val
+        gammaImg = img**gamma
+        gammaPlot.set_data(gammaImg)
+
+        thresh = binSlider.val
+        print(thresh)
+        threshImg = (gammaImg > thresh).astype(np.int)
+        binPlot.set_data(threshImg)
+
         fig.canvas.draw_idle()
 
     img = Image.open(f"Images/{fname}")
@@ -48,25 +60,43 @@ def main():
     img = img / 255
     img = rgb2gray(img)
 
-    fig, ax = plt.subplots(1, 2)
+    fig, ax = plt.subplots(1, 3)
+    plt.subplots_adjust(bottom=0.2)
+
+    gamma = 1
+    gammaImg = img ** gamma
 
     thresh = 0.5
     threshImg = (img > thresh).astype(np.int)
+
     originalPlot = ax[0].imshow(img, cmap="gray")
-    binPlot = ax[1].imshow(threshImg, cmap="gray")
+    gammaPlot = ax[1].imshow(gammaImg, cmap="gray")
+    binPlot = ax[2].imshow(threshImg, cmap="gray")
 
     ax[0].set_title("Original Image")
-    ax[1].set_title("Binned Image")
+    ax[1].set_title("Gamma Image")
+    ax[2].set_title("Binned Image")
+
+    ax[0].get_xaxis().set_visible(False)
+    ax[0].get_yaxis().set_visible(False)
+    ax[1].get_xaxis().set_visible(False)
+    ax[1].get_yaxis().set_visible(False)
+    ax[2].get_xaxis().set_visible(False)
+    ax[2].get_yaxis().set_visible(False)
 
     binAx = plt.axes([0.15, 0.02, 0.7, 0.04])
     binSlider = Slider(binAx, 'Threshold', 0.0, 1.0, valinit=thresh, valstep=0.01)
-    binSlider.on_changed(update)
+    binSlider.on_changed(updateThresh)
+
+    gammaAx = plt.axes([0.15, 0.1, 0.7, 0.04])
+    gammaSlider = Slider(gammaAx, 'Gamma', 0.0, 2.0, valinit=1, valstep=0.02)
+    gammaSlider.on_changed(updateGamma)
 
     print("Choose Threshold and exit window.")
     plt.show()
 
     thresh = binSlider.val
-    threshImg = (img > thresh).astype(np.int)
+    threshImg = (gammaImg > thresh).astype(np.int)
 
     resStr = binimgToStr(threshImg)
     resFName = fname.split(".")[0]
